@@ -1,4 +1,5 @@
 name: ohif/deploy-v3-upstream-with-add-ons-us
+name: ohif/deploy-gcp-ultrasound
 
 on:
   push:
@@ -23,7 +24,6 @@ jobs:
           cd Viewers
           git checkout "${{ vars.OHIF_VERSION_TAG }}"
 
-      # CLONE THEM DIRECTLY INSIDE THE VIEWERS DIRECTORY
       - name: Clone external GCP plugins inside Viewers
         run: |
           cd Viewers
@@ -38,23 +38,18 @@ jobs:
           wget -O ./firebase.json "${{ vars.OHIF_FIREBASE_JSON_URL }}"
           wget -O ./platform/app/public/config/test.js "${{ vars.OHIF_CONFIG_JS_URL }}"
           
-          # 1. Run the standard root installation
-          yarn install
-
-          # 2. Force install dependencies specifically inside the CLI workspace directory
+          # 1. Force install dependencies specifically inside the CLI workspace directory first
           yarn --cwd platform/cli install
 
-          # 3. Link external GCP components using the new internal relative paths
+          # 2. Link external and internal tools to populate pluginConfig.json
           yarn cli link-mode ./ohif-gcp-mode
           yarn cli link-extension ./ohif-gcp-extension
-          
-          # 4. Link the internal usAnnotation folder explicitly
           yarn cli link-extension ./extensions/usAnnotation
           
-          # 5. Run final root install so the monorepo captures the new internal paths cleanly
+          # 3. Run the master root installation to bind your custom code into the workspaces map
           yarn install
 
-          # 6. Compile client-side production build
+          # 4. Compile client-side production build
           PUBLIC_URL=/ APP_CONFIG=config/test.js yarn --cwd platform/app run build:viewer
 
       - name: Deploy to Firebase
