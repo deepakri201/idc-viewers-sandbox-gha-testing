@@ -42,15 +42,14 @@ jobs:
           # 2. Force install dependencies specifically inside the CLI workspace directory
           yarn --cwd platform/cli install
 
-          # 3. Link your external GCP components
+          # 3. Link external GCP components
           yarn cli link-mode ../ohif-gcp-mode
           yarn cli link-extension ../ohif-gcp-extension
           
-          # 4. LINK THE INTERNAL ULTRASOUND ANNOTATION EXTENSION
-          # This tells the monorepo map to explicitly bundle it in the build output
+          # 4. Link the internal usAnnotation folder explicitly using its relative path
           yarn cli link-extension ./extensions/usAnnotation
           
-          # 5. Run a final root install to completely wire up all dependencies
+          # 5. Run final root install to re-map everything cleanly into the monorepo map
           yarn install
 
           # 6. Compile client-side production build
