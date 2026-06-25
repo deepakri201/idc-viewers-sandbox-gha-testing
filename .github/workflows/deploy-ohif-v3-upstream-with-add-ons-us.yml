@@ -1,9 +1,10 @@
 name: ohif/deploy-v3-upstream-with-add-ons-us
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-  schedule:
-    - cron: '0 11 * * *'
 
 jobs:
   link_build_and_deploy:
@@ -35,14 +36,17 @@ jobs:
           wget -O ./firebase.json "${{ vars.OHIF_FIREBASE_JSON_URL }}"
           wget -O ./platform/app/public/config/test.js "${{ vars.OHIF_CONFIG_JS_URL }}"
           
-          # 1. Link the external GCP components so they write to pluginConfig.json
+          # 1. Bootstrap initial dependencies so the CLI tool ('commander', etc.) is available
+          yarn install
+
+          # 2. Link the external GCP components so they write to pluginConfig.json
           yarn cli link-mode ../ohif-gcp-mode
           yarn cli link-extension ../ohif-gcp-extension
           
-          # 2. Run standard yarn installation from root so the monorepo registers links cleanly
+          # 3. Run yarn install again to map the newly added workspaces into the monorepo root
           yarn install
 
-          # 3. Compile client-side production build
+          # 4. Compile client-side production build
           PUBLIC_URL=/ APP_CONFIG=config/test.js yarn --cwd platform/app run build:viewer
 
       - name: Deploy to Firebase
