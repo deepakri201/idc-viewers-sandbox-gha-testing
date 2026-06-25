@@ -23,8 +23,10 @@ jobs:
           cd Viewers
           git checkout "${{ vars.OHIF_VERSION_TAG }}"
 
-      - name: Clone external GCP plugins
+      # CLONE THEM DIRECTLY INSIDE THE VIEWERS DIRECTORY
+      - name: Clone external GCP plugins inside Viewers
         run: |
+          cd Viewers
           git clone https://github.com/ImagingDataCommons/ohif-gcp-mode.git
           git clone https://github.com/ImagingDataCommons/ohif-gcp-extension.git
 
@@ -42,14 +44,14 @@ jobs:
           # 2. Force install dependencies specifically inside the CLI workspace directory
           yarn --cwd platform/cli install
 
-          # 3. Link external GCP components
-          yarn cli link-mode ../ohif-gcp-mode
-          yarn cli link-extension ../ohif-gcp-extension
+          # 3. Link external GCP components using the new internal relative paths
+          yarn cli link-mode ./ohif-gcp-mode
+          yarn cli link-extension ./ohif-gcp-extension
           
-          # 4. Link the internal usAnnotation folder explicitly using its relative path
+          # 4. Link the internal usAnnotation folder explicitly
           yarn cli link-extension ./extensions/usAnnotation
           
-          # 5. Run final root install to re-map everything cleanly into the monorepo map
+          # 5. Run final root install so the monorepo captures the new internal paths cleanly
           yarn install
 
           # 6. Compile client-side production build
