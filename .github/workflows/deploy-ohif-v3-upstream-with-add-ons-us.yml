@@ -1,5 +1,4 @@
 name: ohif/deploy-v3-upstream-with-add-ons-us
-name: ohif/deploy-gcp-ultrasound
 
 on:
   push:
