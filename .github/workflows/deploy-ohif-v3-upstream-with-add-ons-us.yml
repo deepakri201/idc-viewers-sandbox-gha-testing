@@ -42,14 +42,18 @@ jobs:
           # 2. Force install dependencies specifically inside the CLI workspace directory
           yarn --cwd platform/cli install
 
-          # 3. Link your external GCP components so they write to pluginConfig.json
+          # 3. Link your external GCP components
           yarn cli link-mode ../ohif-gcp-mode
           yarn cli link-extension ../ohif-gcp-extension
           
-          # 4. Run a final root install to map the newly added workspaces into the monorepo root
+          # 4. LINK THE INTERNAL ULTRASOUND ANNOTATION EXTENSION
+          # This tells the monorepo map to explicitly bundle it in the build output
+          yarn cli link-extension ./extensions/usAnnotation
+          
+          # 5. Run a final root install to completely wire up all dependencies
           yarn install
 
-          # 5. Compile client-side production build
+          # 6. Compile client-side production build
           PUBLIC_URL=/ APP_CONFIG=config/test.js yarn --cwd platform/app run build:viewer
 
       - name: Deploy to Firebase
